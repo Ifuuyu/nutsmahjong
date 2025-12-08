@@ -106,8 +106,8 @@
         Number(document.getElementById("p4").value),
       ];
 
-      if (rawPoints.some(p => !p && p !== 0)) {
-        document.getElementById("result").innerHTML = "<h3>全プレイヤーの点数を入力してください。</h3>";
+      if (rawPoints.some(p => isNaN(p))) {
+        document.getElementById("result").innerHTML = "<h3>全プレイヤーの点数を正しく入力してください。</h3>";
         return;
       }
 
@@ -120,14 +120,14 @@
       let rank = 0;
       for (let i = 0; i < players.length; i++) {
         if (i > 0 && players[i].score < players[i-1].score) {
-          rank = i; // 前のプレイヤーより点数が低ければ、順位を更新
+          rank = i;
         }
         finalBonuses[players[i].originalIndex] = rankBonuses[rank];
       }
       // --- ここまで ---
 
       const roundPoints = rawPoints.map((score, index) => score + finalBonuses[index]);
-      allRoundsScores.push(roundPoints);
+      allRoundsScores.push({ raw: rawPoints, final: roundPoints });
 
       // Clear input fields
       document.getElementById("p1").value = "";
@@ -153,9 +153,9 @@
       });
       tableHtml += `</tr>`;
 
-      allRoundsScores.forEach((roundScores, roundIndex) => {
+      allRoundsScores.forEach((round, roundIndex) => {
         tableHtml += `<tr><td>${roundIndex + 1}</td>`;
-        roundScores.forEach(score => {
+        round.raw.forEach(score => {
           tableHtml += `<td>${score}</td>`;
         });
         tableHtml += `</tr>`;
@@ -181,14 +181,13 @@
       }
 
       const finalScores = [0, 0, 0, 0];
-      allRoundsScores.forEach(roundScores => {
-        roundScores.forEach((score, i) => {
+      allRoundsScores.forEach(round => {
+        round.final.forEach((score, i) => {
           finalScores[i] += score;
         });
       });
 
       let html = `<h3>最終結果 (${allRoundsScores.length}局合計)</h3>`;
-      // 基準点は、対局数分だけ加算する
       const totalBase = base * allRoundsScores.length;
       finalScores.forEach((p, i) => {
         const diff = (p - totalBase) / 10;

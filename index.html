@@ -34,7 +34,7 @@
   </style>
 </head>
 <body>
-  <h2>ナッツ麻雀清算用(点１傾斜2000/1000)</h2>
+  <h2>ナッツ麻雀 清算用</h2>
 
   <div id="name-input-screen" class="screen">
     <h3>プレイヤー名入力</h3>
@@ -63,9 +63,16 @@
     <input type="number" id="p4" placeholder="例：14000">
 
     <button onclick="nextRound()">この結果を保存し次の局へ</button>
+    <button onclick="showIntermediateProgress()">途中経過を表示</button>
     <button onclick="tallyResults()">集計する</button>
 
     <div id="result"></div>
+  </div>
+
+  <div id="intermediate-progress-screen" class="screen" style="display: none;">
+    <h3>途中経過</h3>
+    <div id="intermediate-table"></div>
+    <button onclick="backToScoreInput()">戻る</button>
   </div>
 
   <script>
@@ -88,6 +95,7 @@
 
       document.getElementById("name-input-screen").style.display = "none";
       document.getElementById("score-input-screen").style.display = "block";
+      hideIntermediateProgress();
     }
 
     function nextRound() {
@@ -130,6 +138,42 @@
       document.getElementById("result").innerHTML = `<h3>${allRoundsScores.length}局目の結果を保存しました。</h3>`;
     }
 
+    function showIntermediateProgress() {
+      if (allRoundsScores.length === 0) {
+        document.getElementById("result").innerHTML = "<h3>表示する途中経過データがありません。</h3>";
+        return;
+      }
+
+      document.getElementById("score-input-screen").style.display = "none";
+      document.getElementById("intermediate-progress-screen").style.display = "block";
+
+      let tableHtml = `<table border="1" style="width:100%; text-align:center; border-collapse: collapse;"><tr><th>局</th>`;
+      playerNames.forEach(name => {
+        tableHtml += `<th>${name}</th>`;
+      });
+      tableHtml += `</tr>`;
+
+      allRoundsScores.forEach((roundScores, roundIndex) => {
+        tableHtml += `<tr><td>${roundIndex + 1}</td>`;
+        roundScores.forEach(score => {
+          tableHtml += `<td>${score}</td>`;
+        });
+        tableHtml += `</tr>`;
+      });
+
+      tableHtml += `</table>`;
+      document.getElementById("intermediate-table").innerHTML = tableHtml;
+    }
+
+    function backToScoreInput() {
+        document.getElementById("intermediate-progress-screen").style.display = "none";
+        document.getElementById("score-input-screen").style.display = "block";
+    }
+    
+    function hideIntermediateProgress() {
+        document.getElementById("intermediate-progress-screen").style.display = "none";
+    }
+
     function tallyResults() {
       if (allRoundsScores.length === 0) {
         document.getElementById("result").innerHTML = "<h3>集計する対局データがありません。</h3>";
@@ -157,5 +201,3 @@
   </script>
 </body>
 </html>
-
-
